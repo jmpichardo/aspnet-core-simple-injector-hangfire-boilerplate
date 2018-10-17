@@ -1,0 +1,7 @@
+packages/
+.vs/
+.idea/
+node_modules/\nbower_components/
+**/bin
+**/obj
+**.user
