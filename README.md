@@ -41,3 +41,7 @@ dotnet run
 ## Notes
 
 This project doesn't include any example for Hangfire's dashboard authorization or any extra setup.
+
+## License
+
+The code is available under the [MIT license](https://github.com/jmpichardo/aspnet-core-simple-injector-hangfire-boilerplate/blob/master/LICENSE).
