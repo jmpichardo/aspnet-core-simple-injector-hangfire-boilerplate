@@ -1,4 +1,5 @@
-﻿using ASPNetCoreHangfire.SimpleInjector;
+﻿using ASPNetCoreHangfire.Jobs;
+using ASPNetCoreHangfire.SimpleInjector;
 using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -54,6 +55,14 @@ namespace ASPNetCoreHangfire
             // Initialize hangfire
             app.UseHangfireServer();
             app.UseHangfireDashboard("/hangfire");
+
+            InitializeJobs();
+        }
+
+        private void InitializeJobs()
+        {
+            // Process example job every 2 minutes
+            RecurringJob.AddOrUpdate<ExampleJob>(job => job.Run(), "*/2 * * * *");
         }
     }
 }

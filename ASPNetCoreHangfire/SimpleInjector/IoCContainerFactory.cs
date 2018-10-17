@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using ASPNetCoreHangfire.Services.Users;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
@@ -34,7 +35,9 @@ namespace ASPNetCoreHangfire.SimpleInjector
 
         private static void MapInterfaces(Container container, IConfiguration config)
         {
-            container.RegisterSingleton(config);
+            container.RegisterInstance(config);
+
+            container.Register<IUsersService, UsersService>(Lifestyle.Transient);
         }
     }
 }
