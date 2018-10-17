@@ -21,6 +21,12 @@ namespace ASPNetCoreHangfire
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var builder = new ConfigurationBuilder()
+              .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+              .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
+
             var connectionString = Configuration.GetConnectionString("DatabaseContext");
 
             var simpleInjector = new SimpleInjectorJobActivator(Container);
