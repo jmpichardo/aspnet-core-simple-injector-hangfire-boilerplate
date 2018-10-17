@@ -11,16 +11,25 @@ namespace ASPNetCoreHangfire
     public class Startup
     {
         private IConfiguration Configuration;
+        private IHostingEnvironment Env;
 
         private readonly Container Container = new Container();
 
         public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
+            Env = env;
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var builder = new ConfigurationBuilder()
+              .SetBasePath(Env.ContentRootPath)
+              .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+              .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
+
             var connectionString = Configuration.GetConnectionString("DatabaseContext");
 
             var simpleInjector = new SimpleInjectorJobActivator(Container);
