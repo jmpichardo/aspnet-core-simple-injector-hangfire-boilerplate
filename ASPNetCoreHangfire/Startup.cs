@@ -1,23 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using ASPNetCoreHangfire.SimpleInjector;
+using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SimpleInjector;
 
 namespace ASPNetCoreHangfire
 {
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
-        public void ConfigureServices(IServiceCollection services)
+        private IConfiguration Configuration;
+
+        private readonly Container Container = new Container();
+
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
+            Configuration = configuration;
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            var connectionString = Configuration.GetConnectionString("DatabaseContext");
+
+            var simpleInjector = new SimpleInjectorJobActivator(Container);
+
+            services.AddHangfire(config => config.UseSqlServerStorage(connectionString)
+                                                 .UseActivator(simpleInjector)
+                                                 .UseFilter(new SimpleInjectorAsyncScopeFilterAttribute(Container)));
+
+            services.IntegrateSimpleInjector(Container);
+        }
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -25,10 +39,12 @@ namespace ASPNetCoreHangfire
                 app.UseDeveloperExceptionPage();
             }
 
-            app.Run(async (context) =>
-            {
-                await context.Response.WriteAsync("Hello World!");
-            });
+            // Dependency injection for hangfire
+            app.InitializeContainer(Container, Configuration);
+
+            // Initialize hangfire
+            app.UseHangfireServer();
+            app.UseHangfireDashboard("/hangfire");
         }
     }
 }
